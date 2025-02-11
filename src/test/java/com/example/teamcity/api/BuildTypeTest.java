@@ -1,15 +1,15 @@
 package com.example.teamcity.api;
 
-import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.User;
-import com.example.teamcity.api.request.checked.CheckedBase;
+import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.spec.Specifications;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 import static io.qameta.allure.Allure.step;
 
@@ -20,27 +20,21 @@ public class BuildTypeTest extends BaseApiTest {
     public void userCreatesBuildTypeTest() {
         var user = generate(User.class);
 
-        var userRequester = new CheckedBase<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
-        userRequester.create(user);
+        superUserCheckedRequests.getRequest(USERS).create(user);
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(user));
 
         var project = generate(Project.class);
 
-        var projectRequester = new CheckedBase<Project>(Specifications.authSpec(user), Endpoint.PROJECT);
-        project = projectRequester.create(project);
+        project = userCheckRequests.<Project>getRequest(PROJECTS).create(project);
 
         var buildType = generate(Arrays.asList(project), BuildType.class);
-        var buildTypeRequester = new CheckedBase<BuildType>(Specifications.authSpec(user), Endpoint.BUILD_TYPES);
 
-        buildTypeRequester.create(buildType);
+        userCheckRequests.getRequest(BUILD_TYPES).create(buildType);
 
-        var createdBuildType = buildTypeRequester.read(buildType.getId());
+        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(buildType.getId());
+
         soft.assertEquals(buildType.getName(), createdBuildType.getName());
     }
-    // RestAssured
-    //         .given()
-    //        .spec(Specifications.getSpec().authSpec(User.builder().user("admin").password("admin").build()))
-    //         .get("/app/rest/projects");
-    //http://admin:admin@10.22.147.179:8111
 
     @Test(description = "User should not be able to create two build types with the same id", groups = {"Negative", "CRUD"})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {

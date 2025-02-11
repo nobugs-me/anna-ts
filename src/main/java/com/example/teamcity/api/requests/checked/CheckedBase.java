@@ -1,12 +1,10 @@
-package com.example.teamcity.api.request.checked;
+package com.example.teamcity.api.requests.checked;
 
 import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.models.BaseModel;
-import com.example.teamcity.api.request.CrudInterface;
-import com.example.teamcity.api.request.Request;
-import com.example.teamcity.api.request.unchecked.UncheckedBase;
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
+import com.example.teamcity.api.requests.CrudInterface;
+import com.example.teamcity.api.requests.Request;
+import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 @SuppressWarnings("unchecked")

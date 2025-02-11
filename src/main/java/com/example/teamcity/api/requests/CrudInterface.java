@@ -1,4 +1,4 @@
-package com.example.teamcity.api.request;
+package com.example.teamcity.api.requests;
 
 import com.example.teamcity.api.models.BaseModel;
 
