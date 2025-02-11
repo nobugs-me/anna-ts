@@ -2,7 +2,6 @@ package com.example.teamcity.api;
 
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
-import com.example.teamcity.api.models.User;
 import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import com.example.teamcity.api.spec.Specifications;
@@ -21,47 +20,35 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
     public void userCreatesBuildTypeTest() {
-        var user = generate(User.class);
 
-        superUserCheckedRequests.getRequest(USERS).create(user);
-        var userCheckRequests = new CheckedRequests(Specifications.authSpec(user));
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        var project = generate(Project.class);
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
 
-        project = userCheckRequests.<Project>getRequest(PROJECTS).create(project);
+        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
 
-        var buildType = generate(Arrays.asList(project), BuildType.class);
-
-        userCheckRequests.getRequest(BUILD_TYPES).create(buildType);
-
-        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(buildType.getId());
-
-        soft.assertEquals(buildType.getName(), createdBuildType.getName());
+        soft.assertEquals(testData.getBuildType().getName(), createdBuildType.getName());
     }
 
     @Test(description = "User should not be able to create two build types with the same id", groups = {"Negative", "CRUD"})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
-        var user = generate(User.class);
+        var buildTypeWithSameId = generate(Arrays.asList(testData.getProject()), BuildType.class, testData.getBuildType().getId());
 
-        superUserCheckedRequests.getRequest(USERS).create(user);
-        var userCheckRequests = new CheckedRequests(Specifications.authSpec(user));
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        var project = generate(Project.class);
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
 
-        project = userCheckRequests.<Project>getRequest(PROJECTS).create(project);
-
-        var buildType1 = generate(Arrays.asList(project), BuildType.class);
-        var buildType2 = generate(Arrays.asList(project), BuildType.class, buildType1.getId());
-
-        userCheckRequests.getRequest(BUILD_TYPES).create(buildType1);
-
-        new UncheckedBase(Specifications.authSpec(user), BUILD_TYPES)
-                .create(buildType2)
+        new UncheckedBase(Specifications.authSpec(testData.getUser()), BUILD_TYPES)
+                .create(buildTypeWithSameId)
                         .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(buildType1.getId())));
+                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(testData.getBuildType().getId())));
 
-        step("Create buildType2 with same id as buildType1 for project by user");
-        step("Check buildType2 was not created with bad request code");
+        //step("Create buildType2 with same id as buildType1 for project by user");
+        //step("Check buildType2 was not created with bad request code");
     }
 
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "CRUD"})
