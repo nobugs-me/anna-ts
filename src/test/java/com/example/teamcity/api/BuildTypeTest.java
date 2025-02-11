@@ -8,49 +8,39 @@ import com.example.teamcity.api.request.checked.CheckedBase;
 import com.example.teamcity.api.spec.Specifications;
 import org.testng.annotations.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Arrays;
 
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 import static io.qameta.allure.Allure.step;
 
-@Test(groups="Regression")
+@Test(groups = "Regression")
 public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
     public void userCreatesBuildTypeTest() {
         var user = generate(User.class);
 
-        step("Create user", () -> {
-            var requester = new CheckedBase<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
-            requester.create(user);
-        });
+        var userRequester = new CheckedBase<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
+        userRequester.create(user);
 
         var project = generate(Project.class);
-        AtomicReference<String> projectId = new AtomicReference<>("");
-                step("Create project by user", () -> {
-            var requester = new CheckedBase<Project>(Specifications.authSpec(user), Endpoint.PROJECT);
-                    projectId.set(requester.create(project).getId());
-        });
 
-        var buildType = generate(BuildType.class);
-        buildType.setProject(Project.builder().id(projectId.get()).locator(null).build());
-        var requester = new CheckedBase<BuildType>(Specifications.authSpec(user), Endpoint.BUILD_TYPES);
-        AtomicReference<String> buildTypeId = new AtomicReference<>("");
+        var projectRequester = new CheckedBase<Project>(Specifications.authSpec(user), Endpoint.PROJECT);
+        project = projectRequester.create(project);
 
-        step("Create build type for project by user", () -> {
-            buildTypeId.set(requester.create(buildType).getId());
-        });
-        step("Check build type was created successfully with correct data", () -> {
-               var createdBuildType =  requester.read(buildTypeId.get());
-        soft.assertEquals(buildType.getName(),createdBuildType.getName());}
+        var buildType = generate(Arrays.asList(project), BuildType.class);
+        var buildTypeRequester = new CheckedBase<BuildType>(Specifications.authSpec(user), Endpoint.BUILD_TYPES);
 
-        );
-        // RestAssured
-        //         .given()
-        //        .spec(Specifications.getSpec().authSpec(User.builder().user("admin").password("admin").build()))
-        //         .get("/app/rest/projects");
-        //http://admin:admin@10.22.147.179:8111
+        buildTypeRequester.create(buildType);
+
+        var createdBuildType = buildTypeRequester.read(buildType.getId());
+        soft.assertEquals(buildType.getName(), createdBuildType.getName());
     }
+    // RestAssured
+    //         .given()
+    //        .spec(Specifications.getSpec().authSpec(User.builder().user("admin").password("admin").build()))
+    //         .get("/app/rest/projects");
+    //http://admin:admin@10.22.147.179:8111
 
     @Test(description = "User should not be able to create two build types with the same id", groups = {"Negative", "CRUD"})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
