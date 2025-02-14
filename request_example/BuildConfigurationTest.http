@@ -78,3 +78,9 @@ Accept: application/json
     "id": "{{buildTypeId}}"
   }
 }
+
+###GET project by id
+GET http://{{user}}:{{password}}@{{host}}:{{port}}/app/rest/projects/id:{{projectId}}
+Content-Type: application/json
+Accept: application/json
+###
