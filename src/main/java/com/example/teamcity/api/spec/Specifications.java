@@ -43,5 +43,4 @@ public class Specifications {
 
         return reqBuilder().setAuth(basicAuthScheme).build();
     }
-    //%s:%s@%s".formatted()
 }

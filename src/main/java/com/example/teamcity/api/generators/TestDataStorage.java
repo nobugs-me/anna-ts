@@ -18,8 +18,6 @@ public class TestDataStorage {
         createdEntitiesMap = new EnumMap<>(Endpoint.class);
     }
 
-    ;
-
     public static TestDataStorage getStorage() {
         if (testDataStorage == null) {
             testDataStorage = new TestDataStorage();

@@ -84,3 +84,15 @@ GET http://{{user}}:{{password}}@{{host}}:{{port}}/app/rest/projects/id:{{projec
 Content-Type: application/json
 Accept: application/json
 ###
+
+###GET all roles
+GET http://{{user}}:{{password}}@{{host}}:{{port}}/app/rest/roles
+Content-Type: application/json
+Accept: application/json
+###
+
+###GET project by name
+GET http://{{user}}:{{password}}@{{host}}:{{port}}/app/rest/projects/name:SearchByName
+Content-Type: application/json
+Accept: application/json
+###
