@@ -1,6 +1,5 @@
 package com.example.teamcity.api;
 
-import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.SourceProject;
 import com.example.teamcity.api.requests.CheckedRequests;
@@ -18,6 +17,7 @@ import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 // Other type checks, e.g. Integer value cannot be set to id and name as Generator throws error: java.lang.IllegalArgumentException: Can not set java.lang.String field com.example.teamcity.api.models.Project.name to java.lang.Integer
 // not all fields in the body check, e.g. removing to id and name, cannot be reproduced as Generator throws error: java.lang.IllegalArgumentException: Can not set java.lang.String field com.example.teamcity.api.models.Project.name to java.lang.Integer
+//COULD YOU PLEASE CLARIFY HOW IT WAS EXPECTED TO DO THOSE NEGATIVE CHECKS AND IN GENERAL HOW THE CHECKING OF JSON RESPONSE STRUCTURE IS DONE AS WE HAVE NOT ALL FIELDS IN DTOS FOR EXAMPLE
 
 @Test(groups = "Regression")
 public class ProjectTest extends BaseApiTest {
