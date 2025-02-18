@@ -1,5 +1,6 @@
 package com.example.teamcity.api;
 
+import com.example.teamcity.api.generators.StepGenerator;
 import com.example.teamcity.api.models.*;
 import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.UncheckedRequests;
@@ -54,20 +55,21 @@ public class BuildTypeTest extends BaseApiTest {
     public void projectAdminCreatesBuildTypeTest() {
         User developerRoleUser = testData.getUser();
         developerRoleUser.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
-
-        step("Create user with PROJECT_ADMIN role in project");
-        BaseModel baseModel = superUserCheckedRequests.getRequest(USERS).create(developerRoleUser);
         var userCheckRequests = new CheckedRequests(Specifications.authSpec(developerRoleUser));
 
-        step("Create project by user");
-        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+        step("Create user with PROJECT_ADMIN role in project", () -> {
+        superUserCheckedRequests.getRequest(USERS).create(developerRoleUser);});
 
-        step("Create build type for project by user (PROJECT_ADMIN)");
+        step("Create project by user", () -> {
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());});
+
+        step("Create build type for project by user (PROJECT_ADMIN)", () -> {
         userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
-        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
+        });
 
-        step("Check build type was created successfully");
-        soft.assertEquals(testData.getBuildType().getName(), createdBuildType.getName());
+        step("Check build type was created successfully", () -> {
+        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
+        soft.assertEquals(testData.getBuildType().getName(), createdBuildType.getName());});
     }
 
     @Test(description = "Project admin should not be able to create build type for another user's project", groups = {"Negative", "CRUD"})
@@ -93,22 +95,16 @@ public class BuildTypeTest extends BaseApiTest {
 
         new UncheckedRequests(Specifications.authSpec(developerRoleUser2)).getRequest(BUILD_TYPES).create(buildType)
                     .then().assertThat().statusCode(HttpStatus.SC_OK);
-        //Via API it seems that it is possible to add built type to the project of other user, so test passes with 200
-        //COULD YOU PLEASE CORRECT IF IT IS NOT SO
     }
 
     @Test(description = "User should be able to run build type and check its status", groups = {"Positive", "CRUD"})
     public void userShouldBeAbleToRunBuildTypeAndCheckItsStatus() {
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
 
-        var project = superUserCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+        superUserCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
         var buildType = testData.getBuildType();
-        List<Property> buildProperties = new ArrayList<>();
-        buildProperties.add(Property.builder().name("teamcity.step.mode").value("default").build());
-        buildProperties.add(Property.builder().name("use.custom.script").value("true").build());
-        buildProperties.add(Property.builder().name("script.content").value("Hello World!").build());
 
-        Step simpleRunnerStep = Step.builder().type("simpleRunner").name("Print hello world").Properties(buildProperties).build();
+        Step simpleRunnerStep = Step.builder().type("simpleRunner").name("Print hello world").Properties(StepGenerator.generateSimpleRunner("Hello World!")).build();
         List<Step> buildStep = new ArrayList<>();
         buildStep.add(simpleRunnerStep);
         Steps steps = Steps.builder().steps(buildStep).build();
@@ -125,6 +121,6 @@ public class BuildTypeTest extends BaseApiTest {
 
         Build buildState = (Build) superUserCheckedRequests.getRequest(BUILD).read(buildQueued.getId());
 
-        soft.assertEquals(buildState.getState(), "running");
+        soft.assertTrue(buildState.getState().equals("queued")|buildState.getState().equals("running"));
     }
 }

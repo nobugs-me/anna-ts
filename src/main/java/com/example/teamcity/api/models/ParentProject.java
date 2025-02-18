@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ParentProject extends BaseModel {
-
     @Builder.Default
     private String id = "_Root";
     @Builder.Default

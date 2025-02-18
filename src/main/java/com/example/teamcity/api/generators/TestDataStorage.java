@@ -15,7 +15,7 @@ public class TestDataStorage {
     private final EnumMap<Endpoint, Set<String>> createdEntitiesMap;
 
     private TestDataStorage() {
-        createdEntitiesMap = new EnumMap<>(Endpoint.class);
+        this.createdEntitiesMap = new EnumMap<>(Endpoint.class);
     }
 
     public static TestDataStorage getStorage() {

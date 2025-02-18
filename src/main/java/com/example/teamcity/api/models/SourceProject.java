@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SourceProject extends BaseModel {
-
     @Builder.Default
     private String locator = "_Root";
 }

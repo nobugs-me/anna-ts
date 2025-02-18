@@ -5,11 +5,12 @@ import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
+import com.example.teamcity.api.requests.SearchInterface;
 import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 @SuppressWarnings("unchecked")
-public class CheckedBase<T extends BaseModel> extends Request implements CrudInterface {
+public class CheckedBase<T extends BaseModel> extends Request implements CrudInterface, SearchInterface {
 
     private final UncheckedBase uncheckedBase;
 
@@ -53,5 +54,13 @@ public class CheckedBase<T extends BaseModel> extends Request implements CrudInt
                 .delete(id)
                 .then().assertThat().statusCode(HttpStatus.SC_OK)
                 .extract().asString();
+    }
+
+    @Override
+    public T search(String searchParameter, String searchValue) {
+        return (T) uncheckedBase
+                .search(searchParameter, searchValue)
+                .then().assertThat().statusCode(HttpStatus.SC_OK)
+                .extract().as(endpoint.getModelClass());
     }
 }
