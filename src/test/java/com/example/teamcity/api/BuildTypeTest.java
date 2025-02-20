@@ -4,9 +4,12 @@ import com.example.teamcity.api.generators.StepGenerator;
 import com.example.teamcity.api.models.*;
 import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.UncheckedRequests;
+import com.example.teamcity.api.requests.checked.CheckedBase;
 import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import com.example.teamcity.api.spec.Specifications;
 import com.example.teamcity.api.spec.ValidationResponseSpecifications;
+import com.example.teamcity.common.WireMock;
+import org.apache.http.HttpStatus;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.List;
 
 import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static io.qameta.allure.Allure.step;
 
 @Test(groups = "Regression")
@@ -115,7 +119,7 @@ public class BuildTypeTest extends BaseApiTest {
 
         BuildType buildTypeToRun = BuildType.builder().id(createdBuildType.getId()).build();
         Build buildToRun = Build.builder().buildType(buildTypeToRun).build();
-        BuildType buildQueued = (BuildType) superUserCheckedRequests.getRequest(BUILD_QUEUE).create(buildToRun);
+        Build buildQueued = (Build) superUserCheckedRequests.getRequest(BUILD_QUEUE).create(buildToRun);
 
         Build buildState = (Build) superUserCheckedRequests.getRequest(BUILD).read(buildQueued.getId());
 

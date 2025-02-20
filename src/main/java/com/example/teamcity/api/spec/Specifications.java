@@ -43,4 +43,10 @@ public class Specifications {
 
         return reqBuilder().setAuth(basicAuthScheme).build();
     }
+
+    public static RequestSpecification mockSpec() {
+        return reqBuilder()
+                .setBaseUri("http://localhost:8081")
+                .build();
+    }
 }
