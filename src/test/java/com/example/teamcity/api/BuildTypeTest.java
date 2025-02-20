@@ -74,27 +74,27 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "Project admin should not be able to create build type for another user's project", groups = {"Negative", "CRUD"})
     public void projectAdminCreatesBuildTypeForAnotherUserProjectTest() {
-        step("Create user with PROJECT_ADMIN role in project");
         User developerRoleUser1 = testData.getUser();
-        developerRoleUser1.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
-        superUserCheckedRequests.getRequest(USERS).create(developerRoleUser1);
-        var userCheckRequests1 = new CheckedRequests(Specifications.authSpec(developerRoleUser1));
-
-        step("Create project1");
-        userCheckRequests1.<Project>getRequest(PROJECTS).create(testData.getProject());
-        Project user1Project = userCheckRequests1.<Project>getRequest(PROJECTS).read(testData.getProject().getId());
-
-        step("Create user with PROJECT_ADMIN role in project");
         User developerRoleUser2 = generate(User.class);
-        developerRoleUser2.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
-        superUserCheckedRequests.<User>getRequest(USERS).create(developerRoleUser2);
 
-        step("Create buildType for project1 by user2 and check buildType was not created with forbidden code");
+        step("Create user with PROJECT_ADMIN role in project", () -> {
+        Project user1Project = (Project) superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+        developerRoleUser1.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
+        developerRoleUser1.getRoles().getRole().getFirst().setScope("p:"+user1Project.getId());
+        superUserCheckedRequests.getRequest(USERS).create(developerRoleUser1);});
+
+        step("Create user with PROJECT_ADMIN role in project", () -> {
+        Project user2Project = (Project) superUserCheckedRequests.getRequest(PROJECTS).create(generate(Project.class));
+        developerRoleUser2.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
+        developerRoleUser2.getRoles().getRole().getFirst().setScope("p:"+user2Project.getId());
+        superUserCheckedRequests.getRequest(USERS).create(developerRoleUser2);});
+
+        step("Create buildType for project1 by user2 and check buildType was not created with forbidden code", () -> {
         BuildType buildType = testData.getBuildType();
-        buildType.getProject().setId(user1Project.getId());
 
         new UncheckedRequests(Specifications.authSpec(developerRoleUser2)).getRequest(BUILD_TYPES).create(buildType)
-                    .then().assertThat().statusCode(HttpStatus.SC_OK);
+                    .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN).body(Matchers.equalTo("You do not have enough permissions to edit project with id: %s\n".formatted(testData.getProject().getId()) +
+                        "Access denied. Check the user has enough permissions to perform the operation."));});
     }
 
     @Test(description = "User should be able to run build type and check its status", groups = {"Positive", "CRUD"})
