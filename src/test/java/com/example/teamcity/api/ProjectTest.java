@@ -63,9 +63,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectWithCyrillicSymbols)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: contains non-latin letter 'ы'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters).\n".formatted(projectWithCyrillicSymbols.getId()) +
-                        "Error occurred while processing this request."));
+                .then().spec(ValidationResponseSpecifications.checkProjectIsInvalidWithNonLatinCharsProjectID(projectWithCyrillicSymbols.getId()));
     }
 
     @Test(description = "User should not be able to create project if id starts with number", groups = {"Negative", "CRUD"})
@@ -80,9 +78,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectStartsWithNumber)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: starts with non-letter character '1'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters).\n".formatted(projectStartsWithNumber.getId()) +
-                        "Error occurred while processing this request."));
+                .then().spec(ValidationResponseSpecifications.checkProjectIsInvalidStareWithNonLetter(projectStartsWithNumber.getId()));
     }
 
     @Test(description = "User should not be able to create project with the same name", groups = {"Negative", "CRUD"})
@@ -112,9 +108,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectWithSameId)
-                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("Project ID \"%s\" is already used by another project".formatted(testData.getProject().getId())));
-    }
+                .then().spec(ValidationResponseSpecifications.checkProjectWithSameIdExists(projectWithSameId.getId()));}
 
     @Test(description = "User should not be able to create project with empty name", groups = {"Negative", "CRUD"})
     public void userCreatesTwoProjectsWithEmptyNameTest() {
@@ -128,8 +122,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectWithEmptyName)
-                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("Project name cannot be empty."));
+                .then().spec(ValidationResponseSpecifications.checkProjectWithEmptyNameCannotBeCreated(projectWithEmptyName.getId()));
     }
 
     @Test(description = "User should not be able to create project with empty id", groups = {"Negative", "CRUD"})
@@ -144,8 +137,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectWithEmptyId)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID must not be empty."));
+                .then().spec(ValidationResponseSpecifications.checkProjectWithEmptyIdCannotBeCreated(projectWithEmptyId.getId()));
     }
 
 
@@ -203,31 +195,8 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(projectCopy)
-                .then().assertThat().statusCode(HttpStatus.SC_NOT_FOUND)
-                .body(Matchers.containsString("No project found by name or internal/external id '%s'".formatted(nonExistingSourceId)));
-    }
+                .then().spec(ValidationResponseSpecifications.checkCopyOfProjectWithNonExistingIdCannotBeCreated(nonExistingSourceId));}
 
-    @Test(description = "User should not be able to create a copy of empty source project", groups = {"Negative", "CRUD"})
-    public void userShouldNotBeAbleToCreateACopyOfEmptySourceProject() {
-        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
-        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
-
-        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
-        var createdProject = userCheckRequests.<Project>getRequest(PROJECTS).read(testData.getProject().getId());
-
-        String nonExistingSourceId = RandomStringUtils.randomAlphabetic(10);
-        Project projectCopy = generate(Project.class);
-        SourceProject sourceProject = generate(SourceProject.class);
-        projectCopy.setSourceProject(sourceProject);
-        projectCopy.getSourceProject().setLocator(nonExistingSourceId);
-        projectCopy.setDescription(createdProject.getDescription());
-
-        new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
-                .create(projectCopy)
-                .then().assertThat().statusCode(HttpStatus.SC_NOT_FOUND)
-                .body(Matchers.containsString("No project found by name or internal/external id '%s'.\n".formatted(nonExistingSourceId) +
-                        "Could not find the entity requested. Check the reference is correct and the user has permissions to access the entity."));
-    }
 
     @Test(description = "User can search a project by name", groups = {"Positive", "CRUD"})
     public void userCanSearchProjectByName() {
@@ -241,7 +210,8 @@ public class ProjectTest extends BaseApiTest {
         soft.assertEquals(searchedProject, createdProject);
     }
 
-    @Test(dataProvider = "projectCreationRolesAreNotAllowedData", description = "User should not be able to create project as Project Viewer", groups = {"Negative", "CRUD"})
+//подскажи пжта а можно с датапровайдера передать роль в название теста?
+    @Test(dataProvider = "projectCreationRolesAreNotAllowedData", description = "User should not be able to create project as Project Viewer, Develop, Agent Manager", groups = {"Negative", "CRUD"})
     public void userShouldNotBeAbleToCreateProjectAsProjectViewer(String role) {
         User projectViewerUser = testData.getUser();
         projectViewerUser.getRoles().getRole().getFirst().setRoleId(role);
@@ -249,10 +219,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(testData.getProject())
-                .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN)
-                .body(Matchers.containsString("You do not have \"Create subproject\" permission in project with internal id: _Root\n" +
-                        "Access denied. Check the user has enough permissions to perform the operation."));
-    }
+                .then().spec(ValidationResponseSpecifications.checkUserWithoutPermissionsCannotCreateProject());}
 
     @DataProvider(name = "projectCreationRolesAreNotAllowedData")
     public Object[][]  getRole() {

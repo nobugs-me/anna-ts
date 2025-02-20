@@ -6,8 +6,7 @@ import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.UncheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import com.example.teamcity.api.spec.Specifications;
-import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
+import com.example.teamcity.api.spec.ValidationResponseSpecifications;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -47,8 +46,7 @@ public class BuildTypeTest extends BaseApiTest {
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), BUILD_TYPES)
                 .create(buildTypeWithSameId)
-                        .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(testData.getBuildType().getId())));
+                .then().spec(ValidationResponseSpecifications.checkUserCannotCreateBuildTypeWithSameIdAsExisting(buildTypeWithSameId.getId()));
     }
 
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "CRUD"})
@@ -93,8 +91,8 @@ public class BuildTypeTest extends BaseApiTest {
         BuildType buildType = testData.getBuildType();
 
         new UncheckedRequests(Specifications.authSpec(developerRoleUser2)).getRequest(BUILD_TYPES).create(buildType)
-                    .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN).body(Matchers.equalTo("You do not have enough permissions to edit project with id: %s\n".formatted(testData.getProject().getId()) +
-                        "Access denied. Check the user has enough permissions to perform the operation."));});
+                    .then().spec(ValidationResponseSpecifications.checkUserCannotEditProjectWithInsufficientRights(buildType.getId()));});
+    //тут не переноситься в месседже почему-то - подскажи плиз что не так
     }
 
     @Test(description = "User should be able to run build type and check its status", groups = {"Positive", "CRUD"})
