@@ -64,6 +64,6 @@ public class TestDataStorage {
 
         );
 
-        createdEntitiesMap.clear();
+        this.createdEntitiesMap.clear();
     }
 }
