@@ -2,11 +2,26 @@ package com.example.teamcity.ui;
 
 import com.codeborne.selenide.Condition;
 import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
+import com.example.teamcity.api.requests.CheckedRequests;
+import com.example.teamcity.api.requests.UncheckedRequests;
+import com.example.teamcity.api.spec.Specifications;
+import com.example.teamcity.api.spec.ValidationResponseSpecifications;
+import com.example.teamcity.ui.elements.BuildElement;
+import com.example.teamcity.ui.pages.ProjectBuildsPage;
 import com.example.teamcity.ui.pages.ProjectPage;
 import com.example.teamcity.ui.pages.ProjectsPage;
+import com.example.teamcity.ui.pages.admin.CreateBuildConfigurationPage;
 import com.example.teamcity.ui.pages.admin.CreateProjectPage;
+import io.restassured.response.Response;
+import io.restassured.specification.ResponseSpecification;
+import org.apache.http.HttpStatus;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.qameta.allure.Allure.step;
 
@@ -39,8 +54,8 @@ public class CreateProjectTest extends BaseUiTest {
         // проверка состояния UI
         // (корректность считывания данных и отображение данных на UI)
 
-        /*ProjectPage.open(createdProject.getId())
-                .title.shouldHave(Condition.exactText(testData.getProject().getName()));*/
+        ProjectPage.open(createdProject.getId())
+                .title.shouldHave(Condition.exactText(testData.getProject().getName()));
 
         var foundProjects = ProjectsPage.open()
                 .getProjects().stream()
@@ -49,9 +64,9 @@ public class CreateProjectTest extends BaseUiTest {
         soft.assertTrue(foundProjects);
     }
 
-    @Test(description = "User should not be able to craete project without name", groups = {"Negative"})
+    @Test(description = "User should not be able to crete project without name", groups = {"Negative"})
     public void userCreatesProjectWithoutName() {
-        // подготовка окружения
+       /* // подготовка окружения
         step("Login as user");
         step("Check number of projects");
 
@@ -68,6 +83,36 @@ public class CreateProjectTest extends BaseUiTest {
 
         // проверка состояния UI
         // (корректность считывания данных и отображение данных на UI)
-        step("Check that error appears `Project name must not be empty`");
+        step("Check that error appears `Project name must not be empty`");*/
+
+        loginAs(testData.getUser());
+
+        // взаимодействие с UI
+
+        String errorMessage =  CreateProjectPage.open("_Root").setupProjectManually("", "").getProjectNameInputError().text();
+
+        // проверка состояния API
+        var userUncheckRequests = new UncheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        Response createdProject = userUncheckRequests.getRequest(Endpoint.PROJECTS).search("name", testData.getProject().getName());
+        createdProject.then().statusCode(HttpStatus.SC_NOT_FOUND);
+
+        var foundProjects = ProjectsPage.open()
+                .getProjects().stream()
+                .noneMatch(project -> project.getName().text().equals(testData.getProject().getName()));
+
+        soft.assertEquals(errorMessage, "Project name is empty");
+        soft.assertTrue(foundProjects);
+    }
+
+    @Test(description = "User should be able to search for project by its full name", groups = {"Positive"})
+    public void userSearchesProjectByItsName() throws InterruptedException {
+        loginAs(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+        var project = userCheckRequests.<Project>getRequest(Endpoint.PROJECTS).create(testData.getProject());
+
+        List<String> searchedProjects = ProjectsPage.open().searchForProject(project.getName()).getSideBarProjects().stream().map(proj -> proj.getName().text()).collect(Collectors.toList());
+
+        soft.assertEquals(searchedProjects, Arrays.asList(testData.getProject().getName()));
     }
 }
