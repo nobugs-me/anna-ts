@@ -13,8 +13,7 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class ProjectBuildsPage extends BasePage {
     private static final String PROJECT_BUILDS_URL = "/project/%s?mode=builds";
-    private ElementsCollection buildsElements = $$("[class*='BuildTypes__item']"); //BuildTypeLine__buildTypeInfo']
-    //private ElementsCollection buildsDetailsElements = $$("[class*='BuildTypeLine__details']");
+    private ElementsCollection buildsElements = $$("[class*='BuildTypes__item']");
     private SelenideElement content = $("[class*='ModeSwitch__header']");
 
     public ProjectBuildsPage() {

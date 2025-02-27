@@ -2,28 +2,20 @@ package com.example.teamcity.ui;
 
 import com.codeborne.selenide.Condition;
 import com.example.teamcity.api.enums.Endpoint;
-import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.UncheckedRequests;
 import com.example.teamcity.api.spec.Specifications;
-import com.example.teamcity.api.spec.ValidationResponseSpecifications;
-import com.example.teamcity.ui.elements.BuildElement;
-import com.example.teamcity.ui.pages.ProjectBuildsPage;
 import com.example.teamcity.ui.pages.ProjectPage;
 import com.example.teamcity.ui.pages.ProjectsPage;
-import com.example.teamcity.ui.pages.admin.CreateBuildConfigurationPage;
 import com.example.teamcity.ui.pages.admin.CreateProjectPage;
 import io.restassured.response.Response;
-import io.restassured.specification.ResponseSpecification;
 import org.apache.http.HttpStatus;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.qameta.allure.Allure.step;
 
 @Test(groups = {"Regression"})
 public class CreateProjectTest extends BaseUiTest {

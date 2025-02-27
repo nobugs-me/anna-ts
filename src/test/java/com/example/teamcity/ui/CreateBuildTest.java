@@ -2,7 +2,6 @@ package com.example.teamcity.ui;
 
 import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.generators.StepGenerator;
-import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.Step;
 import com.example.teamcity.api.models.Steps;
