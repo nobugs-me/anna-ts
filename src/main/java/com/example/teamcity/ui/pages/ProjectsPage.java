@@ -42,11 +42,11 @@ public class ProjectsPage extends BasePage {
         return generatePageElements(projectElements, ProjectElement::new);
     }
 
-    public ProjectsPage searchForProject(String projectName) throws InterruptedException {
+    public ProjectsPage searchForProject(String projectName) {
         searchProjectInput.val(projectName);
         addToFavorites.shouldNotBe(Condition.visible, BASE_WAITING);
         allProjects.shouldNotBe(Condition.visible, BASE_WAITING);
-        Thread.sleep(2000);
+        header.shouldBe(Condition.visible, BASE_WAITING);
         //не нахожу к чему привязаться чтоб дожидалось обновления панели серча - подскажи пжта что-то стабильно работающее тут вместо слипа
         return this;
     }

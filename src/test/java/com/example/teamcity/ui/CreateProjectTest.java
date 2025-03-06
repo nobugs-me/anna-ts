@@ -98,7 +98,7 @@ public class CreateProjectTest extends BaseUiTest {
     }
 
     @Test(description = "User should be able to search for project by its full name", groups = {"Positive"})
-    public void userSearchesProjectByItsName() throws InterruptedException {
+    public void userSearchesProjectByItsName() {
         loginAs(testData.getUser());
         var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
         var project = userCheckRequests.<Project>getRequest(Endpoint.PROJECTS).create(testData.getProject());
