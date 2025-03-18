@@ -48,7 +48,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.5.0</version>
+            <version>${rest-assured.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>selenide</artifactId>
-            <version>7.7.3</version>
+            <version>${selenide.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
