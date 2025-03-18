@@ -52,7 +52,7 @@ public class BuildTypeTest extends BaseApiTest {
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "CRUD"})
     public void projectAdminCreatesBuildTypeTest() {
         User developerRoleUser = testData.getUser();
-        developerRoleUser.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
+        developerRoleUser.getRoles().getRole().get(0).setRoleId("PROJECT_ADMIN");
         var userCheckRequests = new CheckedRequests(Specifications.authSpec(developerRoleUser));
 
         step("Create user with PROJECT_ADMIN role in project", () -> {
@@ -77,14 +77,14 @@ public class BuildTypeTest extends BaseApiTest {
 
         step("Create user with PROJECT_ADMIN role in project", () -> {
         Project user1Project = (Project) superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
-        developerRoleUser1.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
-        developerRoleUser1.getRoles().getRole().getFirst().setScope("p:"+user1Project.getId());
+        developerRoleUser1.getRoles().getRole().get(0).setRoleId("PROJECT_ADMIN");
+        developerRoleUser1.getRoles().getRole().get(0).setScope("p:"+user1Project.getId());
         superUserCheckedRequests.getRequest(USERS).create(developerRoleUser1);});
 
         step("Create user with PROJECT_ADMIN role in project", () -> {
         Project user2Project = (Project) superUserCheckedRequests.getRequest(PROJECTS).create(generate(Project.class));
-        developerRoleUser2.getRoles().getRole().getFirst().setRoleId("PROJECT_ADMIN");
-        developerRoleUser2.getRoles().getRole().getFirst().setScope("p:"+user2Project.getId());
+        developerRoleUser2.getRoles().getRole().get(0).setRoleId("PROJECT_ADMIN");
+        developerRoleUser2.getRoles().getRole().get(0).setScope("p:"+user2Project.getId());
         superUserCheckedRequests.getRequest(USERS).create(developerRoleUser2);});
 
         step("Create buildType for project1 by user2 and check buildType was not created with forbidden code", () -> {

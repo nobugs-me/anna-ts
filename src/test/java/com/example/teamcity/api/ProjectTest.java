@@ -214,7 +214,7 @@ public class ProjectTest extends BaseApiTest {
     @Test(dataProvider = "projectCreationRolesAreNotAllowedData", description = "User should not be able to create project as Project Viewer, Develop, Agent Manager", groups = {"Negative", "CRUD"})
     public void userShouldNotBeAbleToCreateProjectAsProjectViewer(String role) {
         User projectViewerUser = testData.getUser();
-        projectViewerUser.getRoles().getRole().getFirst().setRoleId(role);
+        projectViewerUser.getRoles().getRole().get(0).setRoleId(role);
         superUserCheckedRequests.getRequest(USERS).create(projectViewerUser);
 
         new UncheckedBase(Specifications.authSpec(testData.getUser()), PROJECTS)
