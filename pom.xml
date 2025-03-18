@@ -17,6 +17,7 @@
         <lombok.version>1.18.30</lombok.version>
         <allure.version>2.25.0</allure.version>
         <allure-maven.version>2.12.0</allure-maven.version>
+        <allure.testng.version>2.29.1</allure.testng.version>
         <jackson.version>2.16.0</jackson.version>
         <wiremock.version>3.9.1</wiremock.version>
         <selenide.version>7.0.4</selenide.version>
