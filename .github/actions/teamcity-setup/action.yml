@@ -6,7 +6,7 @@ runs:
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '23'
         distribution: 'zulu'
 
     # По умолчанию в ubuntu отсуствуе команда ifconfig
