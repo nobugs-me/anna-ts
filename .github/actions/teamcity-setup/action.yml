@@ -62,6 +62,7 @@ runs:
         jetbrains/teamcity-server:2023.11.1
 
     - name: Grant execute permissions to mvnw
+      shell: bash
       run: chmod +x ./mvnw
 
     - name: Setup TeamCity server
