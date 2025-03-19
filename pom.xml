@@ -113,6 +113,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
+                    <debugForkedProcess>true</debugForkedProcess>
                     <properties>
                         <property>
                             <name>listener</name>
