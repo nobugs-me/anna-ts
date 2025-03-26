@@ -22,6 +22,7 @@ public class BaseUiTest extends BaseTest {
         // А ПОТОМ ЗАПУСКАЕТЕ НА REMOTE BROWSER
         Configuration.remote = Config.getProperty("remote");
         Configuration.browserSize = Config.getProperty("browserSize");
+        Configuration.timeout = 10000; // время в миллисекундах
 
         Configuration.browserCapabilities.setCapability("selenoid:options", Map.of("enableVNC", true, "enableLog", true));
     }
